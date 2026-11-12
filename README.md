@@ -18,6 +18,38 @@ người không có Muse. Thư mục gốc của artifact Muse KHÔNG bị sửa
   UI tab Đã lưu. Không đồng bộ máy chủ, không đồng bộ giữa các máy —
   khác bản Muse (lưu DB theo tài khoản).
 
+## V2 — Tab "POD Radar" (dữ liệu thật, bản chụp tĩnh 2026-11-12)
+
+Tab mới "POD Radar" mang luồng V2 của bản Muse sang bản web tĩnh, cho
+một ngách + một thị trường: **Amazon US — POD / thời trang in ấn** (áo
+thun, từ khóa crawl: "funny cat t-shirt", "funny dog t-shirt",
+"christmas cat t-shirt").
+
+- Dữ liệu là **dữ liệu thật crawl bằng Apify ngày 12/11/2026** (actor
+  Amazon + actor Facebook Ads Library), xuất tĩnh từ cơ sở dữ liệu của
+  bản Muse vào `src/podData.ts`: **52 sản phẩm, 80 ads nguồn Meta,
+  52 snapshot ngày đầu**. Ghi nhãn "Dữ liệu thật · Apify crawl ngày
+  12/11/2026" trong UI. Đây là bản chụp tĩnh — bản web này KHÔNG tự
+  crawl thêm; đường cong tăng trưởng đầy đủ lớn dần theo crawl hằng
+  ngày chỉ có trong bản Muse.
+- Ảnh sản phẩm/ads: toàn bộ 77 ảnh crawl được (52 sản phẩm + 25 ads)
+  đã tải về, nén WebP và nhúng data URI base64 trong
+  `src/podAssets1.ts` – `src/podAssets2.ts` — KHÔNG hotlink URL CDN
+  Amazon/Meta (các URL đó hết hạn). Ads không có ảnh tĩnh hiển thị ô
+  trống ghi rõ (video/format khác).
+- Luồng đầy đủ như bản Muse: feed phát hiện (xếp theo lượng mua tháng
+  qua giảm dần → BSR tăng dần) → hồ sơ sản phẩm 5 mục (tổng quan &
+  tăng trưởng kèm biểu đồ snapshot, ads nguồn Meta khớp theo
+  brand/từ khóa, bảng so sánh đối thủ cùng từ khóa, quyết định thử,
+  danh sách quyết định đã lưu) → ghim so sánh tối đa 5 sản phẩm.
+- Quyết định Test/Watch/Skip + ưu tiên + ngân sách + ghi chú: lưu
+  localStorage trên trình duyệt của từng người dùng
+  (`ads-library-trends:decisions-v1`), ghi nhãn rõ trong UI là chỉ lưu
+  trên trình duyệt này — không đồng bộ như DB của bản Muse.
+- 3 tab V1 (Quảng cáo / Xu hướng / Đã lưu) giữ nguyên dữ liệu mẫu và
+  cách hoạt động; header chỉ đổi nhãn "Dữ liệu thật" khi đang ở tab
+  POD Radar.
+
 ## Build
 
 ```bash

@@ -10,10 +10,11 @@ TrendCard,
 type AdFilters,
 type Platform,
 } from "./components";
+import { PodTab } from "./pod";
 import { PLATFORM_LABELS, TREND_KIND_LABELS } from "./labels";
 import { SearchIcon, SlidersIcon, XIcon } from "./icons";
 
-type Tab = "trends" | "ads" | "saved";
+type Tab = "trends" | "ads" | "saved" | "pod";
 type TrendKindFilter = "all" | "seasonal" | "new" | "evergreen";
 type TrendSort = "score" | "velocity" | "ai" | "ads";
 
@@ -147,10 +148,13 @@ export function App() {
           >
             {tabButton("ads", "Quảng cáo")}
             {tabButton("trends", "Xu hướng")}
+            {tabButton("pod", "POD Radar")}
             {tabButton("saved", "Đã lưu", saved.data?.ads.length ?? 0)}
           </nav>
           <span className="hidden shrink-0 rounded-full border border-white/30 px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-white/85 md:inline-block">
-            Prototype · Dữ liệu mẫu
+            {tab === "pod"
+              ? "Dữ liệu thật · Crawl 12/11/2026"
+              : "Prototype · Dữ liệu mẫu"}
           </span>
         </div>
       </header>
@@ -359,6 +363,8 @@ export function App() {
             ) : null}
           </>
         ) : null}
+
+        {tab === "pod" ? <PodTab /> : null}
 
         {tab === "trends" ? (
           <>
