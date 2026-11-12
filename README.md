@@ -72,3 +72,13 @@ Nếu Import mà Vercel không tự đọc `vercel.json`, chọn tay đúng các
 giá trị trên, Root Directory để `./` (gốc repo). Sau khi deploy, mở
 URL Vercel được cấp để kiểm tra trang tải đúng tiêu đề
 "Ads Library Trends".
+
+Đã deploy thành công qua đường Import này: https://ads-library-trends.vercel.app/
+(production READY, kiểm chứng render + lọc TikTok ngày 2026-11-12).
+
+### Web Analytics
+
+Web Analytics đã được bật trong Vercel dashboard (gói Hobby, miễn
+phí). Phía code, `src/main.tsx` gọi `inject()` từ `@vercel/analytics`
+để tải `/_vercel/insights/script.js` và ghi nhận page view — thiếu
+bước code này thì dashboard bật cũng không có dữ liệu.
