@@ -11,10 +11,11 @@ type AdFilters,
 type Platform,
 } from "./components";
 import { PodTab } from "./pod";
+import { SpyTab } from "./spy";
 import { PLATFORM_LABELS, TREND_KIND_LABELS } from "./labels";
 import { SearchIcon, SlidersIcon, XIcon } from "./icons";
 
-type Tab = "trends" | "ads" | "saved" | "pod";
+type Tab = "spy" | "pod" | "trends" | "ads" | "saved";
 type TrendKindFilter = "all" | "seasonal" | "new" | "evergreen";
 type TrendSort = "score" | "velocity" | "ai" | "ads";
 
@@ -37,7 +38,8 @@ function countActiveFilters(f: AdFilters): number {
 
 export function App() {
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<Tab>("ads");
+  const [tab, setTab] = useState<Tab>("spy");
+  const [podAsin, setPodAsin] = useState<string | null>(null);
   const [filters, setFilters] = useState<AdFilters>(DEFAULT_FILTERS);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [detailAdId, setDetailAdId] = useState<string | null>(null);
@@ -146,14 +148,12 @@ export function App() {
             className="flex flex-1 gap-1 sm:flex-none"
             aria-label="Chế độ xem"
           >
-            {tabButton("ads", "Quảng cáo")}
-            {tabButton("trends", "Xu hướng")}
+            {tabButton("spy", "Spy Ads POD")}
             {tabButton("pod", "POD Radar")}
-            {tabButton("saved", "Đã lưu", saved.data?.ads.length ?? 0)}
           </nav>
           <span className="hidden shrink-0 rounded-full border border-white/30 px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-white/85 md:inline-block">
-            {tab === "pod"
-              ? "Dữ liệu thật · Crawl 12/11/2026"
+            {tab === "pod" || tab === "spy"
+              ? "Dữ liệu thật · Apify"
               : "Prototype · Dữ liệu mẫu"}
           </span>
         </div>
@@ -364,7 +364,21 @@ export function App() {
           </>
         ) : null}
 
-        {tab === "pod" ? <PodTab /> : null}
+        {tab === "spy" ? (
+          <SpyTab
+            onOpenProduct={(asin) => {
+              setPodAsin(asin);
+              setTab("pod");
+            }}
+          />
+        ) : null}
+
+        {tab === "pod" ? (
+          <PodTab
+            requestedAsin={podAsin}
+            onRequestedAsinHandled={() => setPodAsin(null)}
+          />
+        ) : null}
 
         {tab === "trends" ? (
           <>

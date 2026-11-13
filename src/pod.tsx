@@ -3,7 +3,7 @@
 // latest Apify crawl (src/podData.ts); decisions are stored per-visitor
 // in localStorage (ads-library-trends:decisions-v1), NOT synced anywhere.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AD_IMAGES,
   POD_CRAWL_DATE,
@@ -1237,7 +1237,13 @@ function ascNullsLast(
   return a - b;
 }
 
-export function PodTab() {
+export function PodTab({
+  requestedAsin,
+  onRequestedAsinHandled,
+}: {
+  requestedAsin?: string | null;
+  onRequestedAsinHandled?: () => void;
+} = {}) {
   const [view, setView] = useState<PodView>("feed");
   const [dossierAsin, setDossierAsin] = useState<string | null>(null);
   const [compare, setCompare] = useState<string[]>([]);
@@ -1300,6 +1306,15 @@ export function PodTab() {
     setDossierAsin(asin);
     window.scrollTo({ top: 0 });
   };
+
+  // Cross-tab link from Spy Ads: open the requested product's dossier.
+  useEffect(() => {
+    if (requestedAsin) {
+      openDossier(requestedAsin);
+      onRequestedAsinHandled?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedAsin]);
 
   const saveDecision = (d: PodDecision) => {
     // Capture the product's current signals on every save (create or
