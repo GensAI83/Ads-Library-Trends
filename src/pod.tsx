@@ -37,6 +37,14 @@ export interface PodDecision {
   budget: number | null;
   notes: string;
   updatedAt: string;
+  // Product signals captured at decision time (mirror of the Muse app's
+  // decisions.signal_* columns) so later tests can be judged against the
+  // signals that motivated the decision. Null on records saved before
+  // this field existed, or when the signal itself was missing.
+  signalBoughtMin: number | null;
+  signalReviewCount: number | null;
+  signalRating: number | null;
+  signalAdsCount: number | null;
 }
 
 const DECISIONS_KEY = "ads-library-trends:decisions-v1";
@@ -73,6 +81,9 @@ function loadDecisions(): Record<string, PodDecision> {
         (d.status === "Test" || d.status === "Watch" || d.status === "Skip") &&
         typeof d.priority === "number"
       ) {
+        const dd = d as Record<string, unknown>;
+        const numOrNull = (v: unknown): number | null =>
+          typeof v === "number" && Number.isFinite(v) ? v : null;
         out[asin] = {
           productAsin: asin,
           status: d.status,
@@ -83,6 +94,10 @@ function loadDecisions(): Record<string, PodDecision> {
             typeof d.updatedAt === "string"
               ? d.updatedAt
               : new Date(0).toISOString(),
+          signalBoughtMin: numOrNull(dd.signalBoughtMin),
+          signalReviewCount: numOrNull(dd.signalReviewCount),
+          signalRating: numOrNull(dd.signalRating),
+          signalAdsCount: numOrNull(dd.signalAdsCount),
         };
       }
     }
@@ -126,6 +141,17 @@ function adLibraryUrl(ad: PodSourceAd): string {
   return `https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`;
 }
 
+export function adText(ad: PodSourceAd): string {
+  return `${ad.pageName} ${ad.title ?? ""} ${ad.bodyText ?? ""}`.toLowerCase();
+}
+
+// True when the ad matched via the product's brand appearing in the ad
+// text (the stronger signal); keyword-only matches return false.
+export function adBrandMatch(ad: PodSourceAd, brand: string): boolean {
+  const b = brand.trim().toLowerCase();
+  return b.length >= 3 && adText(ad).includes(b);
+}
+
 // Mirrors the Muse server's matching rule: a source ad belongs to a product
 // when the product's brand shows up in the ad's page name / title / body;
 // otherwise when every meaningful token of the keyword that found the
@@ -135,15 +161,64 @@ export function adMatchesProduct(
   brand: string,
   searchQuery: string,
 ): boolean {
-  const haystack =
-    `${ad.pageName} ${ad.title ?? ""} ${ad.bodyText ?? ""}`.toLowerCase();
-  const b = brand.trim().toLowerCase();
-  if (b.length >= 3 && haystack.includes(b)) return true;
+  if (adBrandMatch(ad, brand)) return true;
+  const haystack = adText(ad);
   const tokens = searchQuery
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length >= 3);
   return tokens.length > 0 && tokens.every((t) => haystack.includes(t));
+}
+
+// Signals captured into a decision at save time (item C mirror).
+export function decisionSignals(product: PodProduct): {
+  signalBoughtMin: number | null;
+  signalReviewCount: number | null;
+  signalRating: number | null;
+  signalAdsCount: number | null;
+} {
+  return {
+    signalBoughtMin: product.boughtPastMonthMin ?? null,
+    signalReviewCount: product.reviewCount ?? null,
+    signalRating: product.rating ?? null,
+    signalAdsCount: matchedAds(product).length,
+  };
+}
+
+export function signalLine(d: PodDecision): string | null {
+  if (
+    d.signalBoughtMin == null &&
+    d.signalReviewCount == null &&
+    d.signalRating == null &&
+    d.signalAdsCount == null
+  ) {
+    return null;
+  }
+  const badge =
+    d.signalBoughtMin != null ? `${formatNum(d.signalBoughtMin)}+` : "—";
+  const reviews =
+    d.signalReviewCount != null ? formatNum(d.signalReviewCount) : "—";
+  const rating = d.signalRating != null ? d.signalRating.toFixed(1) : "—";
+  const ads = d.signalAdsCount != null ? String(d.signalAdsCount) : "—";
+  return `Tín hiệu lúc quyết định: badge ${badge} · ${reviews} review · ★${rating} · ${ads} ads`;
+}
+
+// Honest review display: a 0/NULL review count together with a NULL rating
+// means the crawl had no review data — not that the product has 0 reviews.
+export function reviewText(p: PodProduct): string {
+  if ((p.reviewCount == null || p.reviewCount === 0) && p.rating == null) {
+    return "Chưa có review/dữ liệu";
+  }
+  return formatNum(p.reviewCount);
+}
+
+const SAIGON_DATE = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Saigon",
+});
+
+export function isNewProduct(p: PodProduct): boolean {
+  if (p.firstSeenAt == null) return false;
+  return SAIGON_DATE.format(new Date(p.firstSeenAt)) === POD_CRAWL_DATE;
 }
 
 export function matchedAds(product: PodProduct): PodSourceAd[] {
@@ -201,12 +276,16 @@ export function PodProductCard({
   compareFull,
   onToggleCompare,
   onOpen,
+  decision,
+  onQuickDecision,
 }: {
   product: PodProduct;
   inCompare: boolean;
   compareFull: boolean;
   onToggleCompare: (asin: string) => void;
   onOpen: (asin: string) => void;
+  decision?: PodDecision | null;
+  onQuickDecision?: (asin: string, status: DecisionStatus) => void;
 }) {
   const img = POD_IMAGES[product.asin];
   return (
@@ -263,6 +342,8 @@ export function PodProductCard({
                 ({formatNum(product.reviewCount)} review)
               </span>
             </span>
+          ) : product.reviewCount == null || product.reviewCount === 0 ? (
+            <span className="text-[var(--dim)]">Chưa có review/dữ liệu</span>
           ) : (
             <span className="text-[var(--dim)]">Chưa có rating</span>
           )}
@@ -272,6 +353,11 @@ export function PodProductCard({
         </div>
 
         <div className="flex flex-wrap gap-1.5">
+          {isNewProduct(product) ? (
+            <span className="rounded-md bg-[var(--accent)] px-2 py-1 text-xs font-bold text-white">
+              Mới
+            </span>
+          ) : null}
           {product.isBestSeller ? (
             <span className="rounded-md bg-[#b97f10]/15 px-2 py-1 text-xs font-semibold text-[var(--gold)]">
               Best Seller
@@ -304,6 +390,32 @@ export function PodProductCard({
             name={product.name}
           />
         </div>
+        {onQuickDecision ? (
+          <div
+            className="flex items-center gap-1.5"
+            role="group"
+            aria-label={`Quyết định nhanh cho ${product.name}`}
+          >
+            <span className="text-xs font-medium text-[var(--dim)]">
+              {decision ? `Đã quyết định: ${decision.status}` : "Quyết định:"}
+            </span>
+            {(["Test", "Watch", "Skip"] as DecisionStatus[]).map((s) => (
+              <button
+                key={s}
+                type="button"
+                aria-pressed={decision?.status === s}
+                onClick={() => onQuickDecision(product.asin, s)}
+                className={`inline-flex min-h-8 flex-1 items-center justify-center rounded-md border px-2 text-xs font-bold ${
+                  decision?.status === s
+                    ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                    : "border-[var(--border)] hover:bg-[var(--surface-2)]"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
     </article>
   );
@@ -364,9 +476,24 @@ export function SourceAdCard({ ad }: { ad: PodSourceAd }) {
             title="Số bản trùng (collation) của ads"
           >
             <CopyIcon className="h-3.5 w-3.5 text-[var(--dim)]" />
-            <strong>{ad.collationCount}</strong> bản trùng
+            {ad.collationCount != null ? (
+              <>
+                <strong>{ad.collationCount}</strong> bản trùng
+              </>
+            ) : (
+              "Số bản trùng: chưa rõ"
+            )}
           </span>
         </div>
+        {ad.firstSeenAt || ad.lastSeenAt ? (
+          <p className="text-xs text-[var(--dim)]">
+            {ad.firstSeenAt
+              ? `Thấy lần đầu: ${formatDate(ad.firstSeenAt)}`
+              : ""}
+            {ad.firstSeenAt && ad.lastSeenAt ? " · " : ""}
+            {ad.lastSeenAt ? `Lần cuối: ${formatDate(ad.lastSeenAt)}` : ""}
+          </p>
+        ) : null}
         <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
           {ad.platforms.map((p) => (
             <span
@@ -472,10 +599,9 @@ function SnapshotChart({ snapshots }: { snapshots: PodSnapshot[] }) {
         )}
       </svg>
       <p className="mt-1 text-[13px] text-[var(--dim)]">
-        Đường: số review theo ngày crawl.
-        {snapshots.length === 1
-          ? ` Hiện mới có 1 điểm dữ liệu (ngày đầu ${formatDate(snapshots[0].date)}) — đường cong sẽ dài ra sau mỗi lần crawl hằng ngày trong bản Muse.`
-          : ""}
+        Đường: số review theo ngày crawl. Hiện có {snapshots.length} ngày dữ
+        liệu: {snapshots.map((s) => formatDate(s.date)).join(", ")} — đường
+        cong sẽ dài ra sau mỗi lần crawl hằng ngày trong bản Muse.
         {!hasBsr
           ? " BSR chưa có trong lần crawl đầu (kết quả tìm kiếm Amazon không trả hạng số) — đường BSR sẽ xuất hiện khi các lần crawl sau lấy được hạng."
           : ""}
@@ -552,6 +678,12 @@ function DecisionForm({
           budget: budget.trim() === "" ? null : Number(budget),
           notes: notes.trim(),
           updatedAt: new Date().toISOString(),
+          // Placeholders — PodTab.saveDecision re-captures the product's
+          // current signals on every save.
+          signalBoughtMin: decision?.signalBoughtMin ?? null,
+          signalReviewCount: decision?.signalReviewCount ?? null,
+          signalRating: decision?.signalRating ?? null,
+          signalAdsCount: decision?.signalAdsCount ?? null,
         };
         onSave(d);
         setSavedAt(d.updatedAt);
@@ -690,6 +822,9 @@ function PodDossier({
   const img = POD_IMAGES[product.asin];
   const snapshots = snapshotsFor(product.asin);
   const ads = matchedAds(product);
+  const brandMatchedCount = ads.filter((ad) =>
+    adBrandMatch(ad, product.brand),
+  ).length;
   const competitors = POD_PRODUCTS.filter(
     (p) => p.searchQuery === product.searchQuery && p.asin !== product.asin,
   );
@@ -776,7 +911,7 @@ function PodDossier({
                     ? `★ ${product.rating.toFixed(1)}`
                     : "—",
                 ],
-                ["Số review", formatNum(product.reviewCount)],
+                ["Số review", reviewText(product)],
                 [
                   "BSR",
                   product.bestSellerRank != null
@@ -829,11 +964,19 @@ function PodDossier({
             </p>
           ) : (
             <>
+              <p className="text-sm font-semibold">
+                Ads cùng ngách/từ khóa (chưa khớp cứng từng sản phẩm)
+              </p>
               <p className="text-sm text-[var(--dim)]">
                 {ads.length} ads khớp theo{" "}
                 {product.brand ? "brand hoặc " : ""}từ khóa “
                 {product.searchQuery}” trong nội dung ads.
               </p>
+              {brandMatchedCount > 0 ? (
+                <p className="text-sm text-[var(--dim)]">
+                  Trong đó khớp brand: {brandMatchedCount} ads
+                </p>
+              ) : null}
               <div className="flex flex-col gap-3">
                 {ads.map((ad) => (
                   <SourceAdCard key={ad.adArchiveId} ad={ad} />
@@ -912,7 +1055,7 @@ function PodDossier({
                         {p.rating != null ? p.rating.toFixed(1) : "—"}
                       </td>
                       <td className="px-3 py-2.5 font-mono">
-                        {formatNum(p.reviewCount)}
+                        {reviewText(p)}
                       </td>
                       <td className="px-3 py-2.5">
                         <div className="w-32">
@@ -976,7 +1119,7 @@ function ComparePanel({
         label: "Rating",
         render: (p) => (p.rating != null ? `★ ${p.rating.toFixed(1)}` : "—"),
       },
-      { label: "Số review", render: (p) => formatNum(p.reviewCount) },
+      { label: "Số review", render: (p) => reviewText(p) },
       {
         label: "Cờ",
         render: (p) =>
@@ -1072,6 +1215,27 @@ function ComparePanel({
 }
 
 type PodView = "feed" | "decisions";
+type PodSort = "default" | "reviews" | "priceAsc" | "priceDesc" | "rating";
+
+function descNullsLast(
+  a: number | null | undefined,
+  b: number | null | undefined,
+): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return b - a;
+}
+
+function ascNullsLast(
+  a: number | null | undefined,
+  b: number | null | undefined,
+): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return a - b;
+}
 
 export function PodTab() {
   const [view, setView] = useState<PodView>("feed");
@@ -1079,12 +1243,49 @@ export function PodTab() {
   const [compare, setCompare] = useState<string[]>([]);
   const [decisions, setDecisions] =
     useState<Record<string, PodDecision>>(loadDecisions);
+  const [query, setQuery] = useState("");
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [hideSponsored, setHideSponsored] = useState(false);
+  const [minBadge, setMinBadge] = useState(0);
+  const [sort, setSort] = useState<PodSort>("default");
 
   const products = POD_PRODUCTS;
   const byAsin = useMemo(
     () => new Map(products.map((p) => [p.asin, p])),
     [products],
   );
+  const keywords = useMemo(
+    () => [...new Set(products.map((p) => p.searchQuery))],
+    [products],
+  );
+
+  const visibleProducts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = products.filter((p) => {
+      if (
+        q &&
+        !p.name.toLowerCase().includes(q) &&
+        !p.asin.toLowerCase().includes(q)
+      ) {
+        return false;
+      }
+      if (keyword && p.searchQuery !== keyword) return false;
+      if (hideSponsored && p.isSponsored) return false;
+      if ((p.boughtPastMonthMin ?? 0) < minBadge) return false;
+      return true;
+    });
+    const sorted = [...filtered];
+    if (sort === "reviews") {
+      sorted.sort((a, b) => descNullsLast(a.reviewCount, b.reviewCount));
+    } else if (sort === "priceAsc") {
+      sorted.sort((a, b) => ascNullsLast(a.price, b.price));
+    } else if (sort === "priceDesc") {
+      sorted.sort((a, b) => descNullsLast(a.price, b.price));
+    } else if (sort === "rating") {
+      sorted.sort((a, b) => descNullsLast(a.rating, b.rating));
+    }
+    return sorted;
+  }, [products, query, keyword, hideSponsored, minBadge, sort]);
 
   const toggleCompare = (asin: string) =>
     setCompare((cur) =>
@@ -1101,10 +1302,30 @@ export function PodTab() {
   };
 
   const saveDecision = (d: PodDecision) => {
+    // Capture the product's current signals on every save (create or
+    // update), mirroring the Muse app's saveDecision.
+    const product = byAsin.get(d.productAsin);
+    const enriched = product ? { ...d, ...decisionSignals(product) } : d;
     setDecisions((cur) => {
-      const next = { ...cur, [d.productAsin]: d };
+      const next = { ...cur, [enriched.productAsin]: enriched };
       storeDecisions(next);
       return next;
+    });
+  };
+
+  const quickDecision = (asin: string, status: DecisionStatus) => {
+    const existing = decisions[asin];
+    saveDecision({
+      productAsin: asin,
+      status,
+      priority: existing?.priority ?? 3,
+      budget: existing?.budget ?? null,
+      notes: existing?.notes ?? "",
+      updatedAt: new Date().toISOString(),
+      signalBoughtMin: null,
+      signalReviewCount: null,
+      signalRating: null,
+      signalAdsCount: null,
     });
   };
 
@@ -1193,15 +1414,106 @@ export function PodTab() {
 
       {view === "feed" ? (
         <>
+          <div className="mt-4 flex flex-col gap-3 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-3.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Tìm theo tên sản phẩm hoặc ASIN…"
+                aria-label="Tìm sản phẩm theo tên hoặc ASIN"
+                className="h-10 min-w-52 flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+              />
+              <button
+                type="button"
+                aria-pressed={hideSponsored}
+                onClick={() => setHideSponsored((v) => !v)}
+                className={`inline-flex min-h-10 items-center rounded-lg border px-3.5 text-sm font-bold ${
+                  hideSponsored
+                    ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                    : "border-[var(--border)] bg-[var(--surface)]"
+                }`}
+              >
+                Ẩn Sponsored
+              </button>
+              <label className="flex items-center gap-2 text-sm font-semibold">
+                Badge mua tối thiểu
+                <select
+                  value={minBadge}
+                  onChange={(e) => setMinBadge(Number(e.target.value))}
+                  className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 text-sm font-normal outline-none focus:border-[var(--accent)]"
+                >
+                  <option value={0}>Tất cả</option>
+                  <option value={50}>≥50</option>
+                  <option value={100}>≥100</option>
+                  <option value={300}>≥300</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-2 text-sm font-semibold">
+                Sắp xếp
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as PodSort)}
+                  className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 text-sm font-normal outline-none focus:border-[var(--accent)]"
+                >
+                  <option value="default">Mặc định</option>
+                  <option value="reviews">Review nhiều nhất</option>
+                  <option value="priceAsc">Giá thấp → cao</option>
+                  <option value="priceDesc">Giá cao → thấp</option>
+                  <option value="rating">Rating cao nhất</option>
+                </select>
+              </label>
+            </div>
+            <div
+              className="flex flex-wrap gap-1.5"
+              role="group"
+              aria-label="Lọc theo nhóm từ khóa"
+            >
+              <button
+                type="button"
+                aria-pressed={keyword === null}
+                onClick={() => setKeyword(null)}
+                className={`inline-flex min-h-9 items-center rounded-full border px-3.5 text-[13px] font-bold ${
+                  keyword === null
+                    ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                    : "border-[var(--border)] bg-[var(--surface)]"
+                }`}
+              >
+                Tất cả
+              </button>
+              {keywords.map((kw) => (
+                <button
+                  key={kw}
+                  type="button"
+                  aria-pressed={keyword === kw}
+                  onClick={() => setKeyword(kw)}
+                  className={`inline-flex min-h-9 items-center rounded-full border px-3.5 text-[13px] font-bold ${
+                    keyword === kw
+                      ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                      : "border-[var(--border)] bg-[var(--surface)]"
+                  }`}
+                >
+                  {kw}
+                </button>
+              ))}
+            </div>
+          </div>
           <p className="py-3 text-sm text-[var(--dim)]" role="status">
-            {products.length} sản phẩm · {POD_SOURCE_ADS.length} ads nguồn
-            Meta · xếp theo lượng mua tháng qua giảm dần, rồi BSR tăng dần
+            Hiển thị {visibleProducts.length}/{products.length} sản phẩm ·{" "}
+            {POD_SOURCE_ADS.length} ads nguồn Meta · xếp mặc định theo lượng
+            mua tháng qua giảm dần, rồi BSR tăng dần
             {compare.length > 0
               ? ` · Đang so sánh ${compare.length}/5 — bảng đối chiếu ở cuối feed`
               : ""}
           </p>
+          {visibleProducts.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface)] p-8 text-center text-sm text-[var(--dim)]">
+              Không có sản phẩm nào khớp bộ lọc hiện tại — thử bỏ bớt điều
+              kiện lọc.
+            </p>
+          ) : null}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((p) => (
+            {visibleProducts.map((p) => (
               <PodProductCard
                 key={p.asin}
                 product={p}
@@ -1209,6 +1521,8 @@ export function PodTab() {
                 compareFull={compare.length >= 5}
                 onToggleCompare={toggleCompare}
                 onOpen={openDossier}
+                decision={decisions[p.asin] ?? null}
+                onQuickDecision={quickDecision}
               />
             ))}
           </div>
@@ -1284,6 +1598,11 @@ export function PodTab() {
                           {new Date(decision.updatedAt).toLocaleString("vi-VN")}
                         </span>
                       </p>
+                      {signalLine(decision) ? (
+                        <p className="mt-1 font-mono text-[13px] text-[var(--dim)]">
+                          {signalLine(decision)}
+                        </p>
+                      ) : null}
                       {decision.notes ? (
                         <p className="mt-1 text-sm leading-relaxed">
                           {decision.notes}

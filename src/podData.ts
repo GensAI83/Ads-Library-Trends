@@ -60,9 +60,11 @@ export interface PodSourceAd {
   isActive: boolean;
   startDate: number;
   daysRunning: number;
-  collationCount: number;
+  collationCount: number | null;
   platforms: string[];
   productAsin: string | null;
+  firstSeenAt: string | null;
+  lastSeenAt: string | null;
 }
 
 export const POD_PRODUCTS: PodProduct[] = [
@@ -550,7 +552,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 15.29,
   "listPrice": 17.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": "50+ bought in past month",
   "boughtPastMonthMin": 50,
@@ -873,7 +875,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 15.5,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -892,7 +894,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 24.99,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1044,7 +1046,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 14.44,
   "listPrice": 16.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1120,7 +1122,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 16.99,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1158,7 +1160,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 18.99,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1177,7 +1179,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 21.99,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1196,7 +1198,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 13.39,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1215,7 +1217,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 21.99,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1234,7 +1236,7 @@ export const POD_PRODUCTS: PodProduct[] = [
   "price": 18.99,
   "listPrice": null,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonth": null,
   "boughtPastMonthMin": null,
@@ -1252,7 +1254,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 18.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1261,7 +1263,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 24.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1270,7 +1272,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 18.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1279,7 +1281,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 21.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1396,7 +1398,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 15.5,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1405,7 +1407,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 13.39,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1414,7 +1416,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 16.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1423,7 +1425,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 21.99,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1936,7 +1938,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 14.44,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1945,7 +1947,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-13",
   "price": 14.44,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": null
  },
@@ -1954,7 +1956,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-12",
   "price": 15.29,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": 50
  },
@@ -1963,7 +1965,7 @@ export const POD_SNAPSHOTS: PodSnapshot[] = [
   "date": "2026-11-13",
   "price": 15.29,
   "rating": null,
-  "reviewCount": 0,
+  "reviewCount": null,
   "bestSellerRank": null,
   "boughtPastMonthMin": 50
  },
@@ -2133,7 +2135,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "4173886849577020",
@@ -2154,7 +2158,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1726852375088560",
@@ -2174,7 +2180,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1126969686737541",
@@ -2195,7 +2203,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1902215433819137",
@@ -2216,7 +2226,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "618852751035868",
@@ -2237,7 +2249,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1494510415694974",
@@ -2258,7 +2272,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1759561825369290",
@@ -2280,7 +2296,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2030409801152389",
@@ -2301,7 +2319,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1564376622401037",
@@ -2322,7 +2342,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1786399339072195",
@@ -2342,7 +2364,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1449473360273851",
@@ -2364,7 +2388,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1766847404603373",
@@ -2385,7 +2411,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2528885260966233",
@@ -2405,7 +2433,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1645577873643738",
@@ -2426,7 +2456,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "3246027025567938",
@@ -2447,7 +2479,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1873482647648796",
@@ -2468,7 +2502,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1427933602798811",
@@ -2489,7 +2525,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1670086844093784",
@@ -2509,7 +2547,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1749857682732878",
@@ -2529,7 +2569,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "3015193932167098",
@@ -2548,7 +2590,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2331970630674973",
@@ -2568,7 +2612,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1701053894916457",
@@ -2589,7 +2635,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1426997349067703",
@@ -2610,7 +2658,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1573147767650190",
@@ -2632,7 +2682,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "4560376880891622",
@@ -2653,7 +2705,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "947356901745949",
@@ -2671,7 +2725,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "FACEBOOK",
    "INSTAGRAM"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1012724377818813",
@@ -2692,7 +2748,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1144056378048178",
@@ -2713,7 +2771,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1478230614358527",
@@ -2734,7 +2794,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1928323117843793",
@@ -2755,7 +2817,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2639160729856252",
@@ -2774,7 +2838,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1394791145894497",
@@ -2795,7 +2861,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1537454258075026",
@@ -2816,7 +2884,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1543951490564094",
@@ -2835,7 +2905,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2068221080493736",
@@ -2854,7 +2926,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1903190564355462",
@@ -2873,7 +2947,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1820911608927540",
@@ -2892,7 +2968,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "3817760731697235",
@@ -2913,7 +2991,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2073280993578072",
@@ -2933,7 +3013,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1474897867895982",
@@ -2953,7 +3035,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1098270096038994",
@@ -2974,7 +3058,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1863989827906751",
@@ -2995,7 +3081,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1095123536480026",
@@ -3014,7 +3102,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "4548605085419595",
@@ -3035,7 +3125,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1997012644293536",
@@ -3055,7 +3147,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1418554040447750",
@@ -3075,7 +3169,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1937589433625976",
@@ -3096,7 +3192,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2452744621869191",
@@ -3117,7 +3215,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1807073593928185",
@@ -3138,7 +3238,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1800262067843715",
@@ -3159,7 +3261,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1656453306140117",
@@ -3179,7 +3283,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1477364783721631",
@@ -3200,7 +3306,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "4372038903012939",
@@ -3219,7 +3327,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1633723028213365",
@@ -3241,7 +3351,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1425931049271331",
@@ -3262,7 +3374,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "MESSENGER",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1663629225366890",
@@ -3281,7 +3395,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "29231607306424720",
@@ -3300,7 +3416,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1083283284468223",
@@ -3319,7 +3437,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1841562463652017",
@@ -3338,7 +3458,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1444963107574092",
@@ -3357,7 +3479,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2049225222395839",
@@ -3376,7 +3500,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1694394765381053",
@@ -3395,7 +3521,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1467194971995318",
@@ -3414,7 +3542,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1642900180802501",
@@ -3433,7 +3563,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "4157052037765527",
@@ -3452,7 +3584,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "849461811562321",
@@ -3471,7 +3605,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1076199801897109",
@@ -3490,7 +3626,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "27632850043058678",
@@ -3509,7 +3647,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1005127385948198",
@@ -3528,7 +3668,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1056501514059109",
@@ -3547,7 +3689,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1754985275754823",
@@ -3566,7 +3710,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1671130924628564",
@@ -3585,7 +3731,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1411204180663474",
@@ -3604,7 +3752,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2203614127233424",
@@ -3623,7 +3773,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "29010793841879386",
@@ -3642,7 +3794,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "INSTAGRAM",
    "AUDIENCE_NETWORK"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "38937315065881983",
@@ -3663,7 +3817,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1661298342103856",
@@ -3683,7 +3839,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "2632291657214672",
@@ -3703,7 +3861,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "1352989763441574",
@@ -3723,7 +3883,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "AUDIENCE_NETWORK",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "29103468905914576",
@@ -3743,7 +3905,9 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  },
  {
   "adArchiveId": "4683136645252843",
@@ -3764,6 +3928,8 @@ export const POD_SOURCE_ADS: PodSourceAd[] = [
    "WHATSAPP",
    "THREADS"
   ],
-  "productAsin": null
+  "productAsin": null,
+  "firstSeenAt": "2026-11-12",
+  "lastSeenAt": "2026-11-12"
  }
 ];
