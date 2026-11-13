@@ -1,11 +1,12 @@
 // POD Radar (V2) for the standalone Vercel build — real crawled data for
 // one niche: Amazon US POD / print fashion. Static snapshot of the
-// 2026-11-12 Apify crawl (src/podData.ts); decisions are stored per-visitor
+// latest Apify crawl (src/podData.ts); decisions are stored per-visitor
 // in localStorage (ads-library-trends:decisions-v1), NOT synced anywhere.
 
 import { useMemo, useState } from "react";
 import {
   AD_IMAGES,
+  POD_CRAWL_DATE,
   POD_CRAWL_LABEL,
   POD_IMAGES,
   POD_PRODUCTS,
@@ -16,6 +17,8 @@ import {
   type PodSourceAd,
 } from "./podData";
 import { formatDate } from "./labels";
+
+const CRAWL_DATE_VI = formatDate(POD_CRAWL_DATE);
 import {
   CalendarIcon,
   CheckIcon,
@@ -471,7 +474,7 @@ function SnapshotChart({ snapshots }: { snapshots: PodSnapshot[] }) {
       <p className="mt-1 text-[13px] text-[var(--dim)]">
         Đường: số review theo ngày crawl.
         {snapshots.length === 1
-          ? " Hiện mới có 1 điểm dữ liệu (ngày đầu 12/11/2026) — đường cong sẽ dài ra sau mỗi lần crawl hằng ngày trong bản Muse."
+          ? ` Hiện mới có 1 điểm dữ liệu (ngày đầu ${formatDate(snapshots[0].date)}) — đường cong sẽ dài ra sau mỗi lần crawl hằng ngày trong bản Muse.`
           : ""}
         {!hasBsr
           ? " BSR chưa có trong lần crawl đầu (kết quả tìm kiếm Amazon không trả hạng số) — đường BSR sẽ xuất hiện khi các lần crawl sau lấy được hạng."
@@ -798,7 +801,7 @@ function PodDossier({
             <SnapshotChart snapshots={snapshots} />
           </div>
           <p className="rounded-lg bg-[var(--surface-2)] px-3.5 py-2.5 text-sm leading-relaxed">
-            Đây là bản chụp tĩnh của lần crawl ngày 12/11/2026. Đường cong
+            Đây là bản chụp tĩnh của lần crawl ngày {CRAWL_DATE_VI}. Đường cong
             tăng trưởng lớn dần theo các lần crawl hằng ngày trong bản Muse —
             bản web tĩnh này chỉ hiển thị dữ liệu đã crawl tới ngày đó.
           </p>
@@ -822,7 +825,7 @@ function PodDossier({
           {ads.length === 0 ? (
             <p className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface)] p-5 text-sm text-[var(--dim)]">
               Chưa khớp được ads Meta nào cho sản phẩm này theo brand/từ khóa
-              trong lần crawl 12/11/2026.
+              trong lần crawl {CRAWL_DATE_VI}.
             </p>
           ) : (
             <>
@@ -1146,8 +1149,8 @@ export function PodTab() {
           </span>
         </p>
         <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--dim)]">
-          Bản web tĩnh này là bản chụp (snapshot) của dữ liệu crawl ngày
-          12/11/2026 — không tự crawl thêm. Quyết định Test/Watch/Skip được
+          Bản web tĩnh này là bản chụp (snapshot) của dữ liệu crawl ngày{" "}
+          {CRAWL_DATE_VI} — không tự crawl thêm. Quyết định Test/Watch/Skip được
           lưu trên trình duyệt này, không đồng bộ với bản Muse.
         </p>
       </div>
