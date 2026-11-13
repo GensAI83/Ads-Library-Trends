@@ -424,6 +424,25 @@ export function SpyTab({
   const nonPodCount = POD_SOURCE_ADS.length - podAds.length;
   const topics = useMemo(() => computeTopics(podAds).slice(0, 4), [podAds]);
 
+  // Stats summary — computed from the same podAds array the feed and topics
+  // display, so the line always agrees with what is on the page.
+  const summary = useMemo(() => {
+    const themes = new Set<string>();
+    const types = new Set<string>();
+    let longest = 0;
+    for (const a of podAds) {
+      if (a.theme) themes.add(a.theme);
+      if (a.productType) types.add(a.productType);
+      if (a.daysRunning > longest) longest = a.daysRunning;
+    }
+    return {
+      total: podAds.length,
+      longestDays: longest,
+      themeCount: themes.size,
+      typeCount: types.size,
+    };
+  }, [podAds]);
+
   const themeCounts = useMemo(() => {
     const m = new Map<string, number>();
     for (const a of podAds) if (a.theme) m.set(a.theme, (m.get(a.theme) ?? 0) + 1);
@@ -526,6 +545,13 @@ export function SpyTab({
           Dữ liệu thật · Meta Ads Library qua Apify · chỉ ads POD (in theo
           yêu cầu), đã phân loại theo chủ đề / loại sản phẩm / kênh bán
         </p>
+        {podAds.length > 0 ? (
+          <p className="mt-1 font-mono text-[13px] text-[var(--dim)]">
+            {summary.total} ads POD · Ads chạy lâu nhất {summary.longestDays}{" "}
+            ngày · {summary.themeCount} chủ đề · {summary.typeCount} loại sản
+            phẩm
+          </p>
+        ) : null}
         {nonPodCount > 0 ? (
           <p className="mt-1 font-mono text-[13px] text-[var(--dim)]">
             Đã lọc {nonPodCount} ads không phải POD
