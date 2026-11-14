@@ -13,10 +13,11 @@ type Platform,
 import { PodTab } from "./pod";
 import { SpyTab } from "./spy";
 import { MerchTab } from "./merch";
+import { EtsyTab } from "./etsy";
 import { PLATFORM_LABELS, TREND_KIND_LABELS } from "./labels";
 import { SearchIcon, SlidersIcon, XIcon } from "./icons";
 
-type Tab = "spy" | "merch" | "pod" | "trends" | "ads" | "saved";
+type Tab = "spy" | "merch" | "etsy" | "pod" | "trends" | "ads" | "saved";
 type TrendKindFilter = "all" | "seasonal" | "new" | "evergreen";
 type TrendSort = "score" | "velocity" | "ai" | "ads";
 
@@ -151,10 +152,11 @@ export function App() {
           >
             {tabButton("spy", "Spy Ads POD")}
             {tabButton("merch", "Merch Amazon")}
+            {tabButton("etsy", "Etsy")}
             {tabButton("pod", "POD Radar")}
           </nav>
           <span className="hidden shrink-0 rounded-full border border-white/30 px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-white/85 md:inline-block">
-            {tab === "pod" || tab === "spy" || tab === "merch"
+            {tab === "pod" || tab === "spy" || tab === "merch" || tab === "etsy"
               ? "Dữ liệu thật · Apify"
               : "Prototype · Dữ liệu mẫu"}
           </span>
@@ -383,6 +385,8 @@ export function App() {
             }}
           />
         ) : null}
+
+        {tab === "etsy" ? <EtsyTab /> : null}
 
         {tab === "pod" ? (
           <PodTab
