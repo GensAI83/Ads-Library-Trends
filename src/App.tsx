@@ -12,10 +12,11 @@ type Platform,
 } from "./components";
 import { PodTab } from "./pod";
 import { SpyTab } from "./spy";
+import { MerchTab } from "./merch";
 import { PLATFORM_LABELS, TREND_KIND_LABELS } from "./labels";
 import { SearchIcon, SlidersIcon, XIcon } from "./icons";
 
-type Tab = "spy" | "pod" | "trends" | "ads" | "saved";
+type Tab = "spy" | "merch" | "pod" | "trends" | "ads" | "saved";
 type TrendKindFilter = "all" | "seasonal" | "new" | "evergreen";
 type TrendSort = "score" | "velocity" | "ai" | "ads";
 
@@ -149,10 +150,11 @@ export function App() {
             aria-label="Chế độ xem"
           >
             {tabButton("spy", "Spy Ads POD")}
+            {tabButton("merch", "Merch Amazon")}
             {tabButton("pod", "POD Radar")}
           </nav>
           <span className="hidden shrink-0 rounded-full border border-white/30 px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-white/85 md:inline-block">
-            {tab === "pod" || tab === "spy"
+            {tab === "pod" || tab === "spy" || tab === "merch"
               ? "Dữ liệu thật · Apify"
               : "Prototype · Dữ liệu mẫu"}
           </span>
@@ -366,6 +368,15 @@ export function App() {
 
         {tab === "spy" ? (
           <SpyTab
+            onOpenProduct={(asin) => {
+              setPodAsin(asin);
+              setTab("pod");
+            }}
+          />
+        ) : null}
+
+        {tab === "merch" ? (
+          <MerchTab
             onOpenProduct={(asin) => {
               setPodAsin(asin);
               setTab("pod");
